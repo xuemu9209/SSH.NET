@@ -2282,9 +2282,18 @@ namespace Renci.SshNet
             if (_sftpSession == null)
                 throw new SshConnectionException("Client not connected.");
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            var handle = _sftpSession.RequestOpen(fullPath, flags);
+            var fullPath = _sftpSession.GetCanonicalPath(path);           
+            byte[] handle;
+            try
+            {
+                handle = _sftpSession.RequestOpen(fullPath, flags);
+            }
+            catch (Exception)
+            {
+                Serilog.Log.Error($"SendQinfo SSH.NET出现错误 RequestOpen报错,路径为{fullPath},原始Path为{path}");
+                throw;
+            }
+           
 
             ulong offset = 0;
 
